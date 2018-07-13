@@ -1,0 +1,13 @@
+parameter_defaults:
+  #ExtraHostFileEntries:
+  #  - 192.168.24.27 overcloud-controller-0.storage.localdomain overcloud-controller-0.storage   
+  ControllerExtraConfig:
+    tripleo::firewall::firewall_rules:
+      '300 allow ceph-mgr prometheus module':
+        dport: [9283]
+        proto: tcp
+  ExtraConfig:
+    tripleo::firewall::firewall_rules:
+      '301 allow prometheus node exporter':
+        dport: [9100]
+        proto: tcp
