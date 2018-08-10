@@ -18,7 +18,7 @@ def parse_args():
     )
     parser.add_argument(
         "-f", "--format",
-        choices=["hosts", "hosts_yaml", "raw", "yaml"],
+        choices=["hosts", "raw", "yaml"],
         default="yaml",
     )
     parser.add_argument(
@@ -94,14 +94,6 @@ def format_hosts(inventory_obj):
     )
 
 
-def format_hosts_yaml(inventory_obj):
-    hosts_obj = format_hosts_dict(inventory_obj)
-    return yaml.safe_dump(
-        hosts_obj,
-        default_flow_style=False,
-    )
-
-
 def add_host(inventory, host_conf):
     host_obj = dict(
         ansible_host=host_conf['FLOAT_IP'],
@@ -150,7 +142,5 @@ if __name__ == "__main__":
         print yaml.safe_dump(inv, default_flow_style=False)
     elif args.format == "hosts":
         print format_hosts(inv)
-    elif args.format == "hosts_yaml":
-        print format_hosts_yaml(inv)
     elif args.format == "raw":
         print inv
