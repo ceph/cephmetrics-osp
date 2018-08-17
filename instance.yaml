@@ -53,6 +53,33 @@ resources:
       volume_id: { get_resource: cinder_volume }
       instance_uuid: { get_resource: nova_instance }
       mountpoint: /dev/vdc
+  server_security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      description: Add security group rules for server
+      name: cephmetrics
+      rules:
+        - remote_ip_prefix: 0.0.0.0/0
+          protocol: icmp
+        - remote_ip_prefix: 0.0.0.0/0
+          protocol: tcp
+          port_range_min: 22
+          port_range_max: 22
+      rules:
+        - remote_ip_prefix: 0.0.0.0/0
+          protocol: tcp
+          port_range_min: 3000
+          port_range_max: 3000
+      rules:
+        - remote_ip_prefix: 0.0.0.0/0
+          protocol: tcp
+          port_range_min: 9090
+          port_range_max: 9090
+      rules:
+        - remote_ip_prefix: 0.0.0.0/0
+          protocol: tcp
+          port_range_min: 9100
+          port_range_max: 9100
 outputs:
   instance_ip:
     description: Public IP address of the newly created Nova instance.
