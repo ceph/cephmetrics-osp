@@ -3,10 +3,10 @@ heat_template_version: 2013-05-23
 description: >
   A template to create Ceph stuff
 parameters:
-  key_name:
-    type: string
-    description:
-      Name of an existing key pair to enable SSH access to the instance.
+#  key_name:
+#    type: string
+#    description:
+#      Name of an existing key pair to enable SSH access to the instance.
   instance_type:
     type: string
     description: Type of the instance to be created.
@@ -34,25 +34,116 @@ parameters:
     constraints:
       - range: { min: 20, max: 1024 }
         description: must be between 1 and 1024 Gb.
+  provider_net_name:
+    type: string
+    default: cephmetrics
+    description: Name of provider network
+  metrics_net_vlan:
+    type: string
+    default: 80
+    description: The VLAN used by the cephmetrics network
+  metrics_net_cidr:
+    type: string
+    default: '172.16.5.0/24'
+  metrics_net_allocation_pools:
+    type: string
+    default: [{'start': '172.16.5.4', 'end': '172.16.5.250'}]
+  private_net_allocation_pools:
+    type: string
+    default: [{'start': '192.168.25.4', 'end': '192.168.25.250'}]
+  ###
+  metrics_net_id:
+    type: string
+    description: ID of the cephmetrics network
+  metrics_subnet_id:
+    type: string
+    description: ID of the cephmetrics subnet
 resources:
-  nova_instance:
-    type: OS::Nova::Server
+  provider_network:
+    type: OS::Neutron::ProviderNet
     properties:
-      availability_zone: { get_param: availability_zone }
-      image: { get_param: image_id }
-      flavor: { get_param: instance_type }
-      key_name: { get_param: key_name }
-  cinder_volume:
-    type: OS::Cinder::Volume
+      name: external
+      network_type: vlan
+      #physical_network: { get_resource: provider_net_name }
+      physical_network: datacentre
+      router_external: false
+      shared: false
+  private_net:
+    type: OS::Neutron::Net
     properties:
-      size: { get_param: volume_size }
-      availability_zone: { get_param: availability_zone }
-  volume_attachment:
-    type: OS::Cinder::VolumeAttachment
+      name: private
+      segments:
+        - { get_param: metrics_net_vlan }
+  private_subnet:
+    type: OS::Neutron::Subnet
     properties:
-      volume_id: { get_resource: cinder_volume }
-      instance_uuid: { get_resource: nova_instance }
-      mountpoint: /dev/vdc
+      name: private
+      network_id: { get_resource: private_net }
+      #network_id: { get_resource: provider_network }
+      cidr: { get_param: metrics_net_cidr }
+      allocation_pools: { get_param: private_net_allocation_pools }
+  public_net:
+    type: OS::Neutron::Net
+    properties:
+      name: public
+  public_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      name: public
+      #network_id: { get_resource: provider_network }
+      cidr: { get_param: metrics_net_cidr }
+      allocation_pools: { get_param: metrics_net_allocation_pools }
+  private_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: private_net }
+      fixed_ips:
+        - subnet_id: { get_resource: private_subnet }
+  metrics_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: public_net }
+      fixed_ips:
+        - subnet_id: { get_resource: public_subnet }
+  router:
+    type: OS::Neutron::Router
+    properties:
+      name: router
+      external_gateway_info:
+        network: { get_resource: provider_network }
+#  nova_instance:
+#    type: OS::Nova::Server
+#    properties:
+#      availability_zone: { get_param: availability_zone }
+#      image: { get_param: image_id }
+#      flavor: { get_param: instance_type }
+#      key_name: { get_param: key_name }
+#      networks:
+#        - port: { get_resource: private_port }
+#        - port: { get_resource: metrics_port }
+#  cinder_volume:
+#    type: OS::Cinder::Volume
+#    properties:
+#      size: { get_param: volume_size }
+#      availability_zone: { get_param: availability_zone }
+#  volume_attachment:
+#    type: OS::Cinder::VolumeAttachment
+#    properties:
+#      volume_id: { get_resource: cinder_volume }
+#      instance_uuid: { get_resource: nova_instance }
+#      mountpoint: /dev/vdc
+#  server_port:
+#    type: OS::Neutron::Port
+#    properties:
+#      network_id: { get_param: metrics_net_id }
+#      fixed_ips:
+#        - subnet_id: { get_param: metrics_subnet_id }
+#      security_groups: [{ get_resource: server_security_group }]
+#  server_floating_ip:
+#    type: OS::Neutron::FloatingIP
+#    properties:
+#      floating_network_id: { get_param: metrics_net_id }
+#      port_id: { get_resource: server_port }
   server_security_group:
     type: OS::Neutron::SecurityGroup
     properties:
@@ -80,7 +171,8 @@ resources:
           protocol: tcp
           port_range_min: 9100
           port_range_max: 9100
-outputs:
-  instance_ip:
-    description: Public IP address of the newly created Nova instance.
-    value: { get_attr: [nova_instance, first_address] }
+#outputs:
+#  instance_ip:
+#    description: Public IP address of the cephmetrics instance
+    #value: { get_attr: [nova_instance, first_address] }
+#    value: { get_attr: [server_floating_ip, floating_ip_address] }
