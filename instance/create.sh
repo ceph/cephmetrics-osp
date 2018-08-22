@@ -70,7 +70,7 @@ openstack flavor create $FLAVOR_NAME --disk $FLAVOR_DISK --vcpus $FLAVOR_CPUS --
 # Create the provider port
 PROVIDER_NET_ID=$(openstack network show $PROVIDER_NET_NAME -c id -f value)
 openstack port create  $PROVIDER_PORT_NAME --network $PROVIDER_NET_ID \
-                      --fixed-ip subnet=$PROVIDER_SUBNET_NAME \
+                      --fixed-ip subnet=$PROVIDER_SUBNET_NAME,ip-address=$PROVIDER_NET_IP \
                       --security-group $SEC_GROUP_NAME \
                       --tag $PROVIDER_PORT_NAME
 # For some reason, we need to capitalize ID here and nowhere else
