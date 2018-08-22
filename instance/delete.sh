@@ -28,3 +28,7 @@ openstack network delete $PRIV_NET_ID
 openstack subnet delete $PUB_SUBNET_NAME
 PUB_NET_ID=$(openstack network show $PUB_NET_NAME -c id -f value)
 openstack network delete $PUB_NET_ID
+
+openstack subnet delete $PROVIDER_SUBNET_NAME
+PROVIDER_NET_ID=$(openstack network show $PROVIDER_NET_NAME -c id -f value)
+openstack network delete $PROVIDER_NET_ID
