@@ -52,7 +52,7 @@ def load_file(path):
         for line in contents.strip().split('\n'):
             if line.strip().startswith('#'):
                 continue
-            key, value = line.split('=')
+            key, value = line.split('=', 1)
             # Make sure to catch inline comments, too
             if '#' in value:
                 value = value.split('#')[0].strip()
@@ -72,11 +72,11 @@ def simplify_tripleo_inventory(orig_obj):
          'mgrs', 'osds'
       2. Attach 'ansible_ssh_user=heat-admin' to the Ceph nodes as a var
       3. Attach 'ansible_host=<ctlplane_ip>' to the Ceph nodes as a var
+      4. Attach 'cephmetrics_ip=<cephmetrics_ip> to the Ceph nodes as a var
     """
     group_map = dict(
       Controller=['mons', 'mgrs'],
       CephStorage=['osds'],
-      Compute=['iscsis'],
     )
     new_obj = dict(
         all=dict(),
@@ -85,12 +85,12 @@ def simplify_tripleo_inventory(orig_obj):
         orig_group = orig_obj.get(orig_group_name)
         if orig_group is None:
             continue
-        ips = dict()
         for child_name in orig_group['children'].keys():
-            ips[child_name] = orig_obj[child_name]['vars']['ctlplane_ip']
+            child_vars = orig_obj[child_name]['vars']
             new_obj['all'].setdefault('hosts', dict())[child_name] = dict(
-                ansible_host=ips[child_name],
+                ansible_host=child_vars['ctlplane_ip'],
                 ansible_ssh_user='heat-admin',
+                cephmetrics_ip=child_vars['cephmetrics_ip'],
             )
             for new_group_name in new_group_names:
                 new_obj.setdefault(new_group_name, dict()).setdefault(
@@ -100,13 +100,17 @@ def simplify_tripleo_inventory(orig_obj):
 
 def format_hosts_dict(inventory_obj):
     """
-    For each group in the inventory, assemble all hosts with an ansible_host
-    var. Return a dict mapping their names to the ansible_host value.
+    For each group in the inventory, assemble all hosts with either a
+    cephmetrics_ip var or an ansible_host var. Return a dict mapping their
+    names to the cephmetrics_ip value if found, or the ansible_host value if
+    not.
     """
     hosts_obj = dict()
     for group_name, group in inventory_obj.items():
         for host_name, host in group.get('hosts', dict()).items():
-            if 'ansible_host' in host:
+            if 'cephmetrics_ip' in host:
+                hosts_obj[host_name] = host['cephmetrics_ip']
+            elif 'ansible_host' in host:
                 hosts_obj[host_name] = host['ansible_host']
     return hosts_obj
 
