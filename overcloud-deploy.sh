@@ -30,8 +30,27 @@ done
 ## * Deploy the overcloud!
 ## ::
 openstack overcloud deploy \
-    --templates /usr/share/openstack-tripleo-heat-templates \
-    --libvirt-type qemu --control-flavor oooq_control --compute-flavor oooq_compute --ceph-storage-flavor oooq_ceph --block-storage-flavor oooq_blockstorage --swift-storage-flavor oooq_objectstorage --timeout 90  -e /home/stack/cloud-names.yaml      -e /usr/share/openstack-tripleo-heat-templates/environments/docker.yaml   -e /usr/share/openstack-tripleo-heat-templates/environments/docker-ha.yaml  -e /home/stack/containers-default-parameters.yaml  -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml -e /home/stack/network-environment.yaml  -e /usr/share/openstack-tripleo-heat-templates/environments/low-memory-usage.yaml    -e /usr/share/openstack-tripleo-heat-templates/environments/disable-telemetry.yaml  --validation-warnings-fatal   --compute-scale 1 --control-scale 3 --ceph-storage-scale 3  --ntp-server clock.redhat.com -e /usr/share/openstack-tripleo-heat-templates/environments/ceph-ansible/ceph-ansible.yaml -e ~/ceph-metrics.yaml \
+    --templates ~/templates \
+    -n ~/tht/network_data_ceph_metrics.yaml \
+    -r ~/tht/roles_data_ceph_metrics.yaml \
+    --libvirt-type qemu \
+    --control-flavor oooq_control \
+    --compute-flavor oooq_compute \
+    --ceph-storage-flavor oooq_ceph \
+    --timeout 90 \
+    --compute-scale 1 --control-scale 3 --ceph-storage-scale 3 \
+    --ntp-server clock.redhat.com \
+    -e /home/stack/cloud-names.yaml \
+    -e ~/templates/environments/docker.yaml \
+    -e ~/templates/environments/docker-ha.yaml \
+    -e /home/stack/containers-default-parameters.yaml \
+    -e ~/templates/environments/low-memory-usage.yaml \
+    -e ~/templates/environments/disable-telemetry.yaml \
+    -e ~/templates/environments/ceph-ansible/ceph-ansible.yaml \
+    -e ~/templates/environments/network-isolation.yaml \
+    -e ~/templates/environments/net-single-nic-with-vlans.yaml \
+    -e ~/templates/environments/network-environment.yaml \
+    -e ~/tht/cephmetrics.yaml \
     ${DEPLOY_ENV_YAML:+-e $DEPLOY_ENV_YAML} "$@" && status_code=0 || status_code=$?
 
 ### --stop_docs
