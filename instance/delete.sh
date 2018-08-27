@@ -40,3 +40,11 @@ openstack subnet delete $PROVIDER_SUBNET_NAME
 openstack network delete $PROVIDER_NET_ID
 
 openstack security group delete $SEC_GROUP_NAME
+# Make sure to delete the default security group for the project; it is created
+# automatically
+SEC_GROUPS=$(openstack security group list --project $PROJECT_NAME -c ID -f value)
+openstack security group delete $SEC_GROUPS
+
+openstack user delete $PROJECT_USER
+openstack role delete $PROJECT_ROLE
+openstack project delete $PROJECT_NAME

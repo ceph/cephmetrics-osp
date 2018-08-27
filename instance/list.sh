@@ -2,6 +2,9 @@
 source ~/overcloudrc
 set -x
 
+openstack project list
+openstack role list
+openstack user list
 openstack server list
 openstack volume list
 openstack keypair list
