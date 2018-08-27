@@ -10,6 +10,7 @@ source ~/overcloudrc
 source "./$1"
 
 openstack server delete $SERVER_NAME
+openstack volume delete $SERVER_NAME
 openstack keypair delete $KEYPAIR_NAME
 rm ~/$KEYPAIR_NAME.pem
 openstack flavor delete $FLAVOR_NAME

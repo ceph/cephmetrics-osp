@@ -3,6 +3,7 @@ source ~/overcloudrc
 set -x
 
 openstack server list
+openstack volume list
 openstack keypair list
 openstack flavor list
 openstack security group list

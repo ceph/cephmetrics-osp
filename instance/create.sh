@@ -89,6 +89,17 @@ PRIV_PORT_ID=$(openstack port list --network $PRIV_NET_ID --tags $PRIV_PORT_NAME
 openstack keypair create $KEYPAIR_NAME > ~/$KEYPAIR_NAME.pem
 chmod 600 ~/$KEYPAIR_NAME.pem
 
+
+# Create a volume with the same name as the server; when we create the server
+# using this volume, our data will persist across reboots.
+openstack volume create --image $IMAGE_NAME --size $FLAVOR_DISK --bootable \
+    $SERVER_NAME
+
+# volume create has no --wait flag
+while [ "$(openstack volume show $SERVER_NAME -c status -f value)" != "available" ]
+    do sleep 5
+done
+
 # Assemble the user-data
 # This is necessary because up until cloud-init 18.3, network configuration
 # data sent by OpenStack wasn't used. This meant that only one NIC was usable.
@@ -109,7 +120,7 @@ IFCFG
 ifup eth1
 USER_DATA
 
-openstack server create --flavor $FLAVOR_NAME --image $IMAGE_NAME \
+openstack server create --flavor $FLAVOR_NAME --volume $SERVER_NAME \
                         --key-name $KEYPAIR_NAME \
                         --nic port-id=$PRIV_PORT_ID \
                         --nic port-id=$PROVIDER_PORT_ID \
