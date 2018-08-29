@@ -37,10 +37,10 @@ create the following OpenStack resources:
 - An instance based on the Cinder volume to host the dashboard
 
 The above may be completed with the following steps:
-  
+
 1. Access the undercloud
 2. Ensure that ~/overcloudrc is present
-3. Run [create.sh](instance/create.sh) and provide [centos.conf](instance/centos.conf)
+3. Run [`create.sh`](instance/create.sh) and provide [`centos.conf`](instance/centos.conf)
 
 Installing Cephmetrics
 ======================
@@ -51,17 +51,17 @@ previous phase.
 
 Building the Inventory
 ----------------------
-1. Run [get-inventory.sh](get-inventory.sh)
+1. Run [`get-inventory.sh`](get-inventory.sh)
 2. Rename inventory
 
 Deploying
 ---------
-1. cd /path/to/cephmetrics/ansible
-2. ansible-playbook -v -i /path/to/inventory/ playbook.yml
+1. `cd /path/to/cephmetrics/ansible`
+2. `ansible-playbook -v -i /path/to/inventory/ playbook.yml`
 
 Uninstalling cephmetrics
 ========================
-1. cd /path/to/cephmetrics/ansible
-2. ansible-playbook -v -i /path/to/inventory purge.yml
-3. Using the instance configuration you created previously, run [delete.sh](instance/delete.sh)
+1. `cd /path/to/cephmetrics/ansible`
+2. `ansible-playbook -v -i /path/to/inventory purge.yml`
+3. Using the instance configuration you created previously, run [`delete.sh`](instance/delete.sh)
 4. Delete the cephmetrics project from the overcloud  as described in the [documentation](https://docs.openstack.org/horizon/latest/admin/manage-projects-and-users).
