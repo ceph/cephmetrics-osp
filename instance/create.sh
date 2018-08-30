@@ -165,4 +165,6 @@ openstack server create --flavor $FLAVOR_NAME --volume $SERVER_NAME \
                         --user-data /tmp/user-data.txt \
                         --wait $SERVER_NAME
 
+echo "Success! Please allow a few minutes for the instance to boot and initialize before proceeding."
+echo "Once the instance is fully up, you should be able to use the following command to access it:"
 echo "ssh -i ~/$KEYPAIR_NAME.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USER_NAME@$FLOAT_IP"

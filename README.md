@@ -33,14 +33,20 @@ overcloud called cephmetrics. Within the cephmetrics project we will
 create the following OpenStack resources:
 
 - Neutron networks which can access the Ceph servers
-- A Cinder volume to persist an instance based on a RHEL-based cloud image
+- A Cinder volume to persist an instance based on a RHEL cloud image
 - An instance based on the Cinder volume to host the dashboard
 
 The above may be completed with the following steps:
 
 1. Access the undercloud
 2. Ensure that ~/overcloudrc is present
-3. Run [`create.sh`](instance/create.sh) and provide [`centos.conf`](instance/centos.conf)
+3. If you haven't already, create an image in your *overcloud* using a RHEL KVM image such as the [RHEL 7.5 image found here](https://access.redhat.com/downloads/content/69/ver=/rhel---7/7.5/x86_64/product-software) using a command similar to `openstack image create "rhel_7" --file ./rhel_7.img --disk-format qcow2 --container-format bare --public`
+4. Inside the [`instance` directory](instance), run `cp example.conf cephmetrics.conf`
+5. Edit cephmetrics.conf and make any changes you require, such as the name of the image
+6. Run `./create.sh cephmetrics.conf`
+7. After waiting for the instance to boot completely, SSH into it and register it using subscription-manager
+8. On the instance, enable the necessary repos with `subscription-manager repos --enable=rhel-7-server-rhceph-3-tools-rpms --enable=rhel-7-server-extras-rpms --enable=rhel-7
+-server-optional-rpms --enable=rhel-7-server-rpms`
 
 Installing Cephmetrics
 ======================
@@ -51,8 +57,10 @@ previous phase.
 
 Building the Inventory
 ----------------------
-1. Run [`get-inventory.sh`](get-inventory.sh)
-2. Rename inventory
+1. Access the undercloud
+2. `tripleo-ansible-inventory --static-yaml-inventory ooo-inventory.yaml`
+3. `./convert_inventory.py -a instance/cephmetrics.conf ooo-inventory.yaml > inventory.yaml`
+4. If you need to override any Ansible variables for the deploy, you may edit inventory.yaml and insert them into the 'vars' object inside the 'all' group.
 
 Deploying
 ---------
