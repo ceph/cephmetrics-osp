@@ -82,11 +82,17 @@ def simplify_tripleo_inventory(orig_obj):
         all=dict(),
     )
     for orig_group_name, new_group_names in group_map.items():
+        temp_group = dict()
         orig_group = orig_obj.get(orig_group_name)
         if orig_group is None:
             continue
-        for child_name in orig_group['children'].keys():
-            child_vars = orig_obj[child_name]['vars']
+        if 'children' in orig_group:
+            for child_name in orig_group['children'].keys():
+                temp_group[child_name] = orig_obj[child_name]['vars']
+        elif 'hosts' in orig_group:
+            for child_name in orig_group['hosts'].keys():
+                temp_group[child_name] = orig_group['hosts'][child_name]
+        for child_name, child_vars in temp_group.items():
             new_obj['all'].setdefault('hosts', dict())[child_name] = dict(
                 ansible_host=child_vars['ctlplane_ip'],
                 ansible_ssh_user='heat-admin',
