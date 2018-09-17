@@ -51,8 +51,14 @@ def load_file(path):
         # Here we just extract key-value pairs while ignoring comments.
         for line in contents.strip().split('\n'):
             if line.strip().startswith('#'):
-                continue
-            key, value = line.split('=', 1)
+                continue            
+            try:
+               key, value = line.split('=', 1)
+            except ValueError:
+               # Ignore lines that are not formatted correctly as
+               # some downstream kernels may have weird lines and
+               # the needed fields are probably formatted correctly.
+               pass                       
             # Make sure to catch inline comments, too
             if '#' in value:
                 value = value.split('#')[0].strip()
