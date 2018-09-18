@@ -50,6 +50,8 @@ def load_file(path):
         result = dict()
         # Here we just extract key-value pairs while ignoring comments.
         for line in contents.strip().split('\n'):
+            if not line:
+                continue
             if line.strip().startswith('#'):
                 continue
             key, value = line.split('=', 1)
