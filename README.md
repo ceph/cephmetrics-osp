@@ -45,8 +45,7 @@ The above may be completed with the following steps:
 5. Edit cephmetrics.conf and make any changes you require, such as the name of the image
 6. Run `./create.sh cephmetrics.conf`
 7. After waiting for the instance to boot completely, SSH into it and register it using subscription-manager
-8. On the instance, enable the necessary repos with `subscription-manager repos --enable=rhel-7-server-rhceph-3-tools-rpms --enable=rhel-7-server-extras-rpms --enable=rhel-7
--server-optional-rpms --enable=rhel-7-server-rpms`
+8. On the instance, enable the necessary repos with `subscription-manager repos --enable=rhel-7-server-rhceph-3-tools-rpms --enable=rhel-7-server-extras-rpms --enable=rhel-7-server-optional-rpms --enable=rhel-7-server-rpms`
 
 Installing Cephmetrics
 ======================
